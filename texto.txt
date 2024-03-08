@@ -1,0 +1,100 @@
+/* Consulta 1.1 */
+SELECT * 
+FROM pedido 
+ORDER BY fecha DESC;
+
+/* Consulta 1.2 */
+SELECT * 
+FROM pedido 
+ORDER BY total 
+DESC LIMIT 2;
+
+/* Consulta 1.3 */
+SELECT DISTINCT cliente.id
+FROM cliente
+JOIN pedido ON cliente.id = pedido.id_cliente;
+
+/* Consulta 1.4 */
+SELECT * 
+FROM pedido
+WHERE EXTRACT(YEAR FROM fecha) = 2017 AND total > 500;
+
+/* Consulta 1.5 */
+SELECT nombre, apellido1, apellido2
+FROM comercial
+WHERE comisión BETWEEN 0.05 AND 0.11;
+
+/* Consulta 1.6 */
+SELECT MAX(comisión)
+FROM comercial;
+
+/* Consulta 1.7 */
+SELECT id, nombre, apellido1
+FROM cliente
+WHERE apellido2 IS NOT NULL
+ORDER BY apellido1, nombre;
+
+/* Consulta 1.8 */
+SELECT nombre
+FROM cliente
+WHERE (nombre LIKE 'A%n' OR nombre LIKE 'P%')
+ORDER BY nombre;
+
+/* Consulta 1.9 */
+SELECT nombre
+FROM cliente
+WHERE nombre NOT LIKE 'A%'
+ORDER BY nombre;
+
+/* Consulta 1.10 */
+SELECT DISTINCT nombre 
+FROM comercial
+WHERE nombre LIKE '%el' OR nombre LIKE '%o';
+
+/* Consulta 2.1 */
+SELECT DISTINCT cliente.id, nombre, apellido1, apellido2 
+FROM cliente
+JOIN pedido ON cliente.id = pedido.id_cliente
+ORDER BY nombre, apellido1, apellido2;
+
+/* Consulta 2.2 */
+SELECT pedido.*, cliente.*
+FROM pedido
+JOIN cliente ON pedido.id_cliente = cliente.id
+ORDER BY cliente.*;
+
+/* Consulta 2.3 */
+SELECT pedido.*, comercial.*
+FROM pedido
+JOIN comercial ON pedido.id_comercial = comercial.id
+ORDER BY comercial.*;
+
+/* Consulta 2.4 */
+SELECT cliente.id, cliente.nombre, pedido.id, pedido.total, pedido.fecha, comercial.id, comercial.nombre, comercial.apellido1, comercial.apellido2
+FROM cliente, pedido, comercial
+WHERE cliente.id = pedido.id_cliente AND pedido.id_comercial = comercial.id
+ORDER BY cliente.id, pedido.id;
+
+/* Consulta 2.5 */
+SELECT nombre
+FROM cliente
+JOIN pedido ON cliente.id = pedido.id_cliente
+WHERE EXTRACT(YEAR FROM fecha) = 2017 AND total BETWEEN 300 AND 1000;
+
+/* Consulta 2.6 */
+SELECT DISTINCT comercial.nombre, comercial.apellido1, comercial.apellido2
+FROM comercial
+JOIN pedido ON comercial.id = pedido.id_comercial
+LEFT JOIN cliente ON pedido.id_cliente = cliente.id
+WHERE cliente.nombre = 'María'
+AND cliente.apellido1 = 'Santana'
+AND cliente.apellido2 = 'Moreno';
+
+/* Consulta 2.7 */
+SELECT DISTINCT cliente.nombre
+FROM cliente
+JOIN pedido ON cliente.id = pedido.id_cliente
+JOIN comercial ON pedido.id_comercial = comercial.id
+WHERE comercial.nombre = 'Daniel'
+AND comercial.apellido1 = 'Sáez'
+AND comercial.apellido2 = 'Vega';
