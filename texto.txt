@@ -98,3 +98,222 @@ JOIN comercial ON pedido.id_comercial = comercial.id
 WHERE comercial.nombre = 'Daniel'
 AND comercial.apellido1 = 'Sáez'
 AND comercial.apellido2 = 'Vega';
+
+/* Consulta 3.1 */
+SELECT nombre, apellido1, apellido2, pedido.*
+FROM cliente
+LEFT JOIN pedido ON cliente.id = pedido.id_cliente
+ORDER BY apellido1, apellido2, nombre;
+
+/* Consulta 3.2 */
+SELECT apellido1, apellido2, nombre, pedido.*
+FROM comercial
+LEFT JOIN pedido ON comercial.id = pedido.id_comercial
+ORDER BY apellido1, apellido2, nombre;
+
+/* Consulta 3.3 */
+SELECT nombre
+FROM cliente
+LEFT JOIN pedido ON cliente.id = pedido.id_cliente
+WHERE pedido.id_cliente IS NULL;
+
+/* Consulta 3.4 */
+SELECT nombre
+FROM comercial
+LEFT JOIN pedido ON comercial.id = pedido.id_comercial
+WHERE pedido.id_comercial IS NULL;
+
+/* Consulta 3.5 */
+SELECT nombre
+FROM cliente
+LEFT JOIN pedido ON cliente.id = pedido.id_cliente
+WHERE pedido.id_cliente IS NULL
+UNION
+SELECT nombre
+FROM comercial
+LEFT JOIN pedido ON comercial.id = pedido.id_comercial
+WHERE pedido.id_comercial IS NULL;
+
+/* Consulta 4.1 */
+SELECT SUM(total)
+FROM pedido;
+
+/* Consulta 4.2 */
+SELECT AVG(total)
+FROM pedido;
+
+/* Consulta 4.3 */
+SELECT COUNT(DISTINCT id_comercial)
+FROM pedido;
+
+/* Consulta 4.4 */
+SELECT COUNT(id)
+FROM cliente;
+
+/* Consulta 4.5 */
+SELECT MAX(total)
+FROM pedido;
+
+/* Consulta 4.6 */
+SELECT MIN(total)
+FROM pedido;
+
+/* Consulta 4.7 */
+SELECT ciudad, MAX(categoría)
+FROM cliente
+GROUP BY ciudad
+ORDER BY MAX(categoría) DESC;
+
+/* Consulta 4.8 */
+SELECT cliente.id, cliente.nombre, cliente.apellido1, cliente.apellido2, fecha, MAX(total) AS maximo_pedidos
+FROM pedido
+JOIN cliente ON pedido.id_cliente = cliente.id
+GROUP BY cliente.id, cliente.nombre, cliente.apellido1, cliente.apellido2, fecha
+ORDER BY maximo_pedidos DESC;
+
+/* Consulta 4.9 */
+SELECT cliente.id, cliente.nombre, cliente.apellido1, cliente.apellido2, fecha, MAX(total) AS maximo_pedidos
+FROM pedido
+JOIN cliente ON pedido.id_cliente = cliente.id
+WHERE total > 2000
+GROUP BY cliente.id, cliente.nombre, cliente.apellido1, cliente.apellido2, fecha
+ORDER BY maximo_pedidos DESC;
+
+/* Consulta 4.10 */
+SELECT comercial.id, nombre, apellido1, apellido2, MAX(total) AS maximo_pedidos
+FROM pedido
+JOIN comercial ON pedido.id_comercial = comercial.id
+WHERE fecha = '2016-08-17'
+GROUP BY comercial.id, nombre, apellido1, apellido2
+ORDER BY maximo_pedidos DESC;
+
+/* Consulta 4.11 */
+SELECT cliente.id, nombre, apellido1, apellido2, COUNT(total) AS total_pedidos
+FROM cliente
+LEFT JOIN pedido ON cliente.id = pedido.id_cliente
+GROUP BY cliente.id, nombre, apellido1, apellido2
+ORDER BY total_pedidos DESC;
+
+/* Consulta 4.12 */
+SELECT cliente.id, nombre, apellido1, apellido2, COUNT(total) as total_pedidos
+FROM cliente
+LEFT JOIN pedido ON cliente.id = pedido.id_cliente
+WHERE EXTRACT(YEAR FROM fecha) = '2017'
+GROUP BY cliente.id, nombre, apellido1, apellido2
+ORDER BY total_pedidos DESC;
+
+/* Consulta 4.13 */
+SELECT cliente.id, nombre, apellido1, apellido2, COALESCE(MAX(total), 0) AS maxima_cantidad
+FROM cliente
+LEFT JOIN pedido ON cliente.id = pedido.id_cliente
+GROUP BY cliente.id, nombre, apellido1, apellido2
+ORDER BY maxima_cantidad DESC;
+
+/* Consulta 4.14 */
+SELECT EXTRACT(YEAR FROM fecha) AS año, MAX(total) AS max_total
+FROM pedido
+GROUP BY año
+ORDER BY año;
+
+/* Consulta 4.15 */
+SELECT EXTRACT(YEAR FROM fecha) AS año, COUNT(total) AS total_pedidos
+FROM pedido
+GROUP BY año
+ORDER BY año;
+
+/* Consulta 5.1 */
+SELECT *
+FROM pedido
+WHERE id_cliente = (
+    SELECT id
+    FROM cliente
+    WHERE nombre = 'Adela' AND apellido1 = 'Salas' AND apellido2 = 'Díaz'
+);
+
+/* Consulta 5.2 */
+SELECT COUNT(total) AS numero_pedidos
+FROM pedido
+WHERE id_comercial = (
+	SELECT id
+	FROM comercial
+	WHERE nombre = 'Daniel' AND apellido1 = 'Sáez' AND apellido2 = 'Vega'
+);
+
+/* Consulta 5.3 */
+SELECT *
+FROM cliente
+WHERE id = (
+    SELECT id_cliente
+    FROM pedido
+    WHERE EXTRACT(year FROM fecha) = 2019
+    ORDER BY total DESC
+    LIMIT 1
+);
+
+/* Consulta 5.4 */
+SELECT fecha, MIN(total) AS pedido_menor_valor
+FROM pedido
+WHERE id_cliente = (
+	SELECT id
+	FROM cliente
+	WHERE nombre = 'Pepe' AND apellido1 = 'Ruiz' AND apellido2 = 'Santana'
+)
+GROUP BY fecha
+ORDER BY pedido_menor_valor;
+
+/* Consulta 5.5 */
+SELECT cliente.*, pedido.*
+FROM cliente, pedido
+WHERE cliente.id = pedido.id_cliente
+AND pedido.total >= (
+    SELECT AVG(total)
+    FROM pedido
+    WHERE EXTRACT(year FROM fecha) = 2017
+);
+
+/* Consulta 6.1 */
+SELECT id, total
+FROM pedido 
+WHERE total >= ALL (
+    SELECT total
+    FROM pedido
+);
+
+/* Consulta 6.2 */
+SELECT nombre
+FROM cliente
+WHERE NOT id = ANY (SELECT id_cliente FROM pedido);
+
+/* Consulta 6.3 */
+SELECT nombre
+FROM comercial
+WHERE NOT id = ANY (SELECT id_comercial FROM pedido);
+
+
+/* Consulta 7.1 */
+SELECT nombre
+FROM cliente
+WHERE id NOT IN (SELECT id_cliente FROM pedido);
+
+/* Consulta 7.2 */
+SELECT nombre
+FROM comercial
+WHERE id NOT IN (SELECT id_comercial FROM pedido);
+
+/* Consulta 8.1 */
+SELECT nombre
+FROM cliente
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM pedido
+    WHERE pedido.id_cliente = cliente.id
+);
+
+/* Consulta 8.2 */
+SELECT nombre
+FROM comercial
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM pedido
+    WHERE pedido.id_comercial = comercial.id
+);
